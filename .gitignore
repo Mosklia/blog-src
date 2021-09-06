@@ -1,0 +1,6 @@
+.deploy_git
+.github
+node_modules
+public
+scaffolds
+_config*
