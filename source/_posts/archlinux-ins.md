@@ -6,7 +6,7 @@ tags:
 - ArchLinux
 - 双系统
 categories:
-- 日常
+- 调教电脑
 ---
 
 离我第一次入坑 [ArchLinux](https://wiki.archlinux.org/title/Main_page_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)) 已有将近三年之久，期间我已经重装 Arch 不下十次了，但是却一直没有记录自己是怎么装的。正好，这次我的笔记本拿去维修了，维修点表示需要重装系统，这意味着本子拿回来之后，我得重装我的 Arch，我也借此机会，记录一下自己 Arch 的重装过程。
@@ -43,7 +43,7 @@ categories:
 
 输入以下内容：
 
-```shell
+```sh
 ls /sys/firmware/efi/efivars
 ```
 
@@ -87,7 +87,7 @@ ls /sys/firmware/efi/efivars
 
 输入以下命令：
 
-```shell
+```sh
 pacstrap /mnt linux linux-firmware base iwd networkmanager nano grub efibootmgr os-prober ntfs-3g sudo
 ```
 
@@ -97,13 +97,13 @@ pacstrap /mnt linux linux-firmware base iwd networkmanager nano grub efibootmgr 
 
 输入以下命令：
 
-```shell
+```sh
 genfstab -U /mnt >> /mnt/etc/fstab
 ```
 
 然后再输入以下命令，查看生成文件是否正确：
 
-```shell
+```sh
 cat /mnt/etc/fstab
 ```
 
@@ -111,7 +111,7 @@ cat /mnt/etc/fstab
 
 输入以下命令：
 
-```shell
+```sh
 arch-chroot /mnt
 ```
 
@@ -119,7 +119,7 @@ arch-chroot /mnt
 
 依次输入以下命令：
 
-```shell
+```sh
 ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 hwclock --systohc
 ```
@@ -142,7 +142,7 @@ zh_TW.UTF-8
 
 然后按 Ctrl-O 保存，Ctrl-X 退出，输入以下命令：
 
-```shell
+```sh
 locale-gen
 echo "LANG=en_SG.UTF-8" >> /etc/locale.conf
 ```
@@ -165,7 +165,7 @@ echo "LANG=en_SG.UTF-8" >> /etc/locale.conf
 默认的 Root 密码是随机生成的，在此我们需要手动更改，否则退出 Live 环境以后，我们将无法登录至 Root 账户（对于没有新建其他账户的电脑，这意味着无法进入系统）。  
 使用以下命令，按照提示修改 Root 密码（放心，不需要猜出原来的那个随机的密码）：
 
-```shell
+```sh
 passwd
 ```
 
@@ -177,7 +177,7 @@ passwd
 
 我使用 [GRUB 2](https://wiki.archlinux.org/title/GRUB_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)) 作为引导程序。它的依赖程序已经在[安装系统及软件到硬盘](#安装系统及软件到硬盘)中安装完成。执行以下命令来将 GRUB 安装到 EFI 分区：
 
-```shell
+```sh
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 ```
 
@@ -191,7 +191,7 @@ GRUB_DISABLE_OS_PROBER=false
 
 然后运行以下命令生成 GRUB 主配置文件：
 
-```shell
+```sh
 grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
@@ -213,13 +213,13 @@ grub-mkconfig -o /boot/grub/grub.cfg
 选择一个你喜欢的名字，记为`<username>`。  
 创建用户（并为其创建主文件夹）：
 
-```shell
+```sh
 useradd -m <username>
 ```
 
 然后修改其密码：
 
-```shell
+```sh
 passwd <username>
 ```
 
@@ -227,7 +227,7 @@ passwd <username>
 
 将用户加入群组 `wheel`：
 
-```shell
+```sh
 usermod -aG wheel <username>
 ```
 
@@ -237,32 +237,32 @@ usermod -aG wheel <username>
 
 使用 [NetworkManager](https://wiki.archlinux.org/title/NetworkManager_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))：首先启用相关的系统服务：
 
-```shell
+```sh
 systemctl start NetworkManager.service
 systemctl enable NetworkManager.service
 ```
 
 然后查找附近的 WiFi：
 
-```shell
+```sh
 nmcli device wifi list
 ```
 
 假设要连接的 WiFi 名称为 `<SSID>`，密码为 `<password>`，连接至 WiFi：
 
-```shell
+```sh
 nmcli device wifi connect <SSID> password <password>
 ```
 
 或者该 WiFi 没有密码：
 
-```shell
+```sh
 nmcli device wifi connect <SSID>
 ```
 
 最后，测试连接：
 
-```shell
+```sh
 ping baidu.com -c 3
 ```
 
@@ -275,25 +275,25 @@ ping baidu.com -c 3
 先安装核显的驱动，保证能够正常进入桌面环境，然后再考虑独显的事情。  
 我的 CPU 是 AMD 的，因此核显驱动选择 `xf86-video-amdgpu`：
 
-```shell
+```sh
 pacman -S xf86-video-amdgpu
 ```
 
 ### 安装 Xorg
 
-```shell
+```sh
 pacman -S xorg
 ```
 
 ### 安装 SDDM
 
-```shell
+```sh
 pacman -S sddm sddm-kcm
 ```
 
 ### 安装 KDE Plasma 及其配套软件
 
-```shell
+```sh
 pacman -S plasma kde-applications
 ```
 
@@ -315,10 +315,81 @@ AUR 是 ArchLinux 的一大竞争力，很多优秀的软件都被放在 AUR 上
 我使用的 AUR Helper 是 pikaur。它不在官方的软件仓库里面。具体安装过程和配置可参考[项目的 GitHub 页面](https://github.com/actionless/pikaur)。  
 建议安装后额外运行一下：
 
-```shell
+```sh
 sudo pacman -S asp python-pysocks
 ```
 
 ## 中文输入法
 
-采用的方案为 Fcitx5 下的搜狗拼音。
+采用的方案为 [Fcitx5](https://wiki.archlinux.org/title/Fcitx5_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)) 下的中文输入插件。
+
+输入以下命令：
+
+```sh
+sudo pacman -S fcitx5-im fcitx5-qt fcitx5-gtk fcitx5-chinese-addons fcitx5-configtool fcitx5-pinyin-zhwiki
+```
+
+并将以下内容输入到文件 `~/.pam_environment` 中（如果没有，就新建一个）
+
+```sh
+GTK_IM_MODULE DEFAULT=fcitx
+QT_IM_MODULE  DEFAULT=fcitx
+XMODIFIERS    DEFAULT=@im=fcitx
+INPUT_METHOD  DEFAULT=fcitx
+SDL_IM_MODULE DEFAULT=fcitx
+```
+
+然后运行 fcitx5 配置，“添加输入法”里面找到拼音，点击“添加”。另外建议多看看其他按钮，看一下有些什么可以调教的。
+
+如果重启电脑后发现输入法没有运行，“系统设置”->“开机与关机”->“添加”->“添加应用”，找到“Fcitx 5”，点确定。
+
+## 双显卡切换
+
+我的电脑是 AMD 的核显和 RTX 2060MQ 的独显，采用的是独显做大部分显示，仅需要时手动使用核显的思路。
+
+采用的切换方案是 [PRIME](https://wiki.archlinux.org/title/PRIME)。
+
+首先需要安装驱动，这里为了性能，使用 Nivida 的闭源驱动 `nvidia`：
+
+```sh
+sudo pacman -S nvidia nvidia-prime
+```
+
+另外可以考虑安装以下验证用的软件包 `mesa-demos`：
+
+```sh
+sudo pacman -S mesa-demos
+```
+
+重启电脑，现在输入这两个命令验证安装是否正确：
+```sh
+glxinfo | grep "OpenGL render" # OpenGL renderer string: AMD RENOIR (DRM 3.41.0, 5.13.13-arch1-1, LLVM 12.0.1)
+prime-run glxinfo | grep "OpenGL render" # OpenGL renderer string: NVIDIA GeForce RTX 2060 with Max-Q Design/PCIe/SSE2
+```
+
+如果安装正确，以后启动应用时在其前面加上 `prime-run` 就可以切换到独显来渲染了。
+
+## 蓝牙
+
+参考[官方指南](https://wiki.archlinux.org/title/Bluetooth_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))。
+
+安装软件包：
+
+```sh
+sudo pacman -S bluez bluez-utils bluedevil
+```
+
+然后启用蓝牙服务：
+
+```sh
+sudo systemctl start bluetooth.service
+sudo systemctl enable bluetooth.service
+```
+
+此时电脑的状态栏会出现蓝牙的图标。  
+
+对于蓝牙耳机，应该再额外执行以下命令：
+
+```sh
+sudo pacman -S pulseaudio-bluetooth
+```
